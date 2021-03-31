@@ -30,7 +30,7 @@ interface IFunc2<A1, A2, R> {
 R apply(A1 arg1, A2 arg2);
 }
 
-interface IList<T> {
+interface IList<T> extends Iterable<T> {
   
   int length();
   
@@ -43,6 +43,10 @@ interface IList<T> {
   <U> IList<U> map(IFunc<T, U> f);
   
   <U> U foldr(IFunc2<T, U, U> func, U base);
+
+  boolean isCons();
+
+  ConsList<T> asCons();
   
 }
 
@@ -66,6 +70,17 @@ class MtList<T> implements IList<T> {
     return base;
   }
 
+  public Iterator<T> iterator() {
+    return new IListIterator<T>(this);
+  }
+
+  public boolean isCons() {
+    return false;
+  }
+
+  public ConsList<T> asCons() {
+    throw new RuntimeException();
+  }
 }
 
 class ConsList<T> implements IList<T> {
@@ -108,5 +123,17 @@ class ConsList<T> implements IList<T> {
   
   public <U> U foldr(IFunc2<T, U, U> func, U base) {
     return func.apply(this.first, this.rest.foldr(func, base));
+  }
+  
+  public Iterator<T> iterator() {
+    return new IListIterator<T>(this);
+  }
+
+  public boolean isCons() {
+    return true;
+  }
+
+  public ConsList<T> asCons() {
+    return this;
   }
 }
